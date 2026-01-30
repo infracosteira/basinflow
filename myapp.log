@@ -78,3 +78,102 @@ INFO:__main__:Processing data
 2026-01-27 10:19:04,901 - INFO: Finished
 2026-01-27 10:27:03,057 - INFO: Started
 2026-01-27 10:27:13,492 - INFO: Finished
+2026-01-27 11:21:11,369 - INFO: Started
+2026-01-27 11:31:02,620 - INFO: Finished
+2026-01-30 15:06:47,623 - INFO: Started
+2026-01-30 15:07:00,088 - INFO: Iniciando aplicação Tkinter...
+2026-01-30 16:18:20,731 - INFO: Iniciando aplicação Tkinter...
+2026-01-30 16:19:08,182 - INFO: Iniciando aplicação Tkinter...
+2026-01-30 16:19:52,417 - INFO: Iniciando aplicação Tkinter...
+2026-01-30 16:21:47,008 - INFO: Iniciando aplicação Tkinter...
+2026-01-30 16:22:48,848 - INFO: Iniciando aplicação Tkinter...
+2026-01-30 16:23:23,551 - INFO: Iniciando aplicação Tkinter...
+2026-01-30 16:26:22,248 - INFO: Iniciando aplicação Tkinter...
+2026-01-30 16:27:15,107 - INFO: Iniciando aplicação Tkinter...
+2026-01-30 16:29:17,837 - INFO: Iniciando aplicação Tkinter...
+2026-01-30 16:30:35,169 - INFO: Iniciando aplicação Tkinter...
+2026-01-30 16:31:11,180 - INFO: Iniciando aplicação Tkinter...
+2026-01-30 16:34:00,395 - INFO: Iniciando aplicação Tkinter...
+2026-01-30 16:34:58,478 - INFO: Started
+2026-01-30 16:35:13,952 - INFO: Finished
+2026-01-30 16:35:34,249 - INFO: Started
+2026-01-30 16:35:43,992 - INFO: Finished
+2026-01-30 16:36:24,498 - INFO: Started
+2026-01-30 16:36:45,790 - INFO: Finished
+2026-01-30 16:36:51,799 - INFO: Started
+2026-01-30 16:37:00,596 - INFO: Finished
+2026-01-30 16:37:14,113 - INFO: Started
+2026-01-30 16:37:31,511 - INFO: Finished
+2026-01-30 16:43:12,605 - INFO: Started
+2026-01-30 16:43:14,125 - INFO: Finished
+2026-01-30 16:43:17,071 - INFO: Started
+2026-01-30 16:43:31,568 - INFO: Finished
+2026-01-30 16:43:33,017 - INFO: Started
+2026-01-30 16:43:39,130 - INFO: Finished
+2026-01-30 16:43:55,527 - INFO: Started
+2026-01-30 16:44:49,360 - INFO: Finished
+2026-01-30 16:44:50,360 - INFO: Started
+2026-01-30 16:45:19,434 - INFO: Finished
+2026-01-30 16:45:20,448 - INFO: Started
+2026-01-30 16:45:21,887 - INFO: Finished
+2026-01-30 16:46:38,151 - INFO: Started
+2026-01-30 16:46:59,107 - INFO: Finished
+2026-01-30 16:47:13,712 - INFO: Started
+2026-01-30 16:47:15,673 - INFO: Finished
+2026-01-30 16:47:24,054 - INFO: Started
+2026-01-30 16:47:34,607 - INFO: Finished
+2026-01-30 16:47:42,832 - INFO: Started
+2026-01-30 16:48:25,118 - INFO: Finished
+2026-01-30 16:50:31,401 - INFO: Started
+2026-01-30 16:50:39,295 - INFO: Finished
+2026-01-30 17:01:48,088 - INFO: Started
+2026-01-30 17:01:50,336 - INFO: Finished
+2026-01-30 17:02:39,001 - INFO: Started
+2026-01-30 17:02:47,437 - INFO: Cálculo iniciado pelo usuário
+2026-01-30 17:03:11,287 - INFO: Cálculo iniciado pelo usuário
+2026-01-30 17:03:30,517 - INFO: Finished
+2026-01-30 17:03:58,636 - INFO: Started
+2026-01-30 17:04:10,912 - INFO: Cálculo iniciado pelo usuário
+2026-01-30 17:04:13,926 - INFO: Finished
+2026-01-30 17:07:07,721 - INFO: Started
+2026-01-30 17:07:38,606 - INFO: Finished
+2026-01-30 17:08:20,007 - INFO: Started
+2026-01-30 17:08:22,068 - INFO: Finished
+2026-01-30 17:08:40,556 - INFO: Started
+2026-01-30 17:08:43,421 - INFO: Finished
+2026-01-30 17:13:26,325 - INFO: Started
+2026-01-30 17:13:43,148 - INFO: Cálculo iniciado pelo usuário
+2026-01-30 17:13:43,157 - INFO: DataFrames mesclados para construção do grafo
+2026-01-30 17:15:55,651 - INFO: Finished
+2026-01-30 17:16:03,000 - INFO: Started
+2026-01-30 17:16:16,037 - INFO: Cálculo iniciado pelo usuário
+2026-01-30 17:16:16,043 - INFO: DataFrames mesclados para construção do grafo
+2026-01-30 17:16:39,214 - INFO: Finished
+2026-01-30 17:17:43,091 - INFO: Started
+2026-01-30 17:18:02,425 - INFO: Cálculo iniciado pelo usuário
+2026-01-30 17:18:02,430 - INFO: DataFrames mesclados para construção do grafo
+2026-01-30 17:18:11,687 - INFO: Finished
+2026-01-30 17:18:33,637 - INFO: Started
+2026-01-30 17:19:10,215 - INFO: Finished
+2026-01-30 17:19:35,806 - INFO: Started
+2026-01-30 17:23:44,828 - INFO: Finished
+2026-01-30 17:23:54,443 - INFO: Started
+2026-01-30 17:26:34,287 - INFO: Started
+2026-01-30 17:26:54,423 - INFO: Cálculo iniciado pelo usuário
+2026-01-30 17:26:54,432 - INFO: DataFrames mesclados para construção do grafo
+2026-01-30 17:27:53,737 - INFO: Cálculo iniciado pelo usuário
+2026-01-30 17:27:53,742 - INFO: DataFrames mesclados para construção do grafo
+2026-01-30 17:28:00,563 - INFO: Cálculo iniciado pelo usuário
+2026-01-30 17:28:00,566 - INFO: DataFrames mesclados para construção do grafo
+2026-01-30 17:28:20,349 - INFO: Finished
+2026-01-30 17:28:35,056 - INFO: Started
+2026-01-30 17:28:55,651 - INFO: Cálculo iniciado pelo usuário
+2026-01-30 17:28:55,657 - INFO: DataFrames mesclados para construção do grafo
+2026-01-30 17:29:35,755 - INFO: Cálculo iniciado pelo usuário
+2026-01-30 17:29:35,759 - INFO: DataFrames mesclados para construção do grafo
+2026-01-30 17:29:54,375 - INFO: Cálculo iniciado pelo usuário
+2026-01-30 17:29:54,382 - INFO: DataFrames mesclados para construção do grafo
+2026-01-30 17:30:32,554 - INFO: Started
+2026-01-30 17:30:45,709 - INFO: Cálculo iniciado pelo usuário
+2026-01-30 17:30:45,718 - INFO: DataFrames mesclados para construção do grafo
+2026-01-30 18:18:08,820 - INFO: Finished
