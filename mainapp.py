@@ -22,6 +22,10 @@ FILE_SCHEMAS = {
     "sedyield.dat": {
         "names": ['subasin_id', 'sed_enter_volume'],
         "decimal": "."
+    },
+    "sed_param.dat": {
+        "names": ['subasin_id','sediment_density', 'sediment_retention_efficiency'],
+        "decimal": "."
     }
 }
 
@@ -74,8 +78,8 @@ def selecionar_arquivo(entry_widget, chave):
             encoding='latin1',
             skiprows=2,
             names=config["names"],
-            sep='\t',        # <--- Força separador de tabulação
-            quotechar='"',   # <--- Remove as aspas automaticamente
+            sep='\t',       
+            quotechar='"',   
             engine='python'
         )
 
@@ -109,7 +113,7 @@ def selecionar_arquivo(entry_widget, chave):
 def toggle_sedimentos():
     
     # Define o estado com base no valor do checkbox
-    novo_estado = tk.NORMAL if ativar.get() else tk.DISABLED
+    novo_estado = tk.NORMAL if sedimentos_checkbox.get() else tk.DISABLED
     #                NORMAL = HABILITADO DISABLED = DESABILITADO
     # Lista de componentes que devem ser habilitados/desabilitados
     componentes = [ent_sed, btn_sed, rb_file, rb_manual, ent_param_file, btn_param_file, ent_density, ent_efficiency]
@@ -151,12 +155,12 @@ for label in labels:
 
 
 # 2. SIMULAR DINÂMICA DE SEDIMENTOS
-ativar = tk.BooleanVar(value=False) # Começa DESMARCADA
+sedimentos_checkbox = tk.BooleanVar(value=False) # Começa DESMARCADA
 frame_sedimentos = tk.LabelFrame(root, padx=15, pady=10)
 frame_sedimentos.pack(fill="x", padx=20, pady=10)
 
 check_btn = tk.Checkbutton(frame_sedimentos, text="Simular dinâmica de sedimentos", 
-                           variable=ativar, command=toggle_sedimentos, font=('Arial', 10, 'bold'))
+                           variable=sedimentos_checkbox, command=toggle_sedimentos, font=('Arial', 10, 'bold'))
 
 frame_sedimentos.configure(labelwidget=check_btn)
 
@@ -183,7 +187,7 @@ rb_file = tk.Radiobutton(row_p1, text="Carregar do arquivo:", variable=radio_var
 rb_file.pack(side="left")
 ent_param_file = tk.Entry(row_p1, state=tk.DISABLED)
 ent_param_file.pack(side="left", expand=True, fill="x", padx=5)
-btn_param_file = tk.Button(row_p1, text="...", state=tk.DISABLED, command=lambda: selecionar_arquivo(ent_param_file))
+btn_param_file = tk.Button(row_p1, text="...", state=tk.DISABLED, command=lambda: selecionar_arquivo(ent_param_file, "sed_param.dat"))
 btn_param_file.pack(side="right")
 
 # Opção 2: Valores manuais
@@ -193,12 +197,12 @@ rb_manual.pack(anchor="w")
 # Campos de densidade e eficiência
 row_manual = tk.Frame(subframe_params)
 row_manual.pack(fill="x", padx=20)
-tk.Label(row_manual, text="Sediment density - dry clay (g/cm³):").grid(row=0, column=0, sticky="w")
+tk.Label(row_manual, text="Densidade aparente seca da barragem de terra (g/cm³):").grid(row=0, column=0, sticky="w")
 ent_density = tk.Entry(row_manual, width=10, state=tk.DISABLED)
 ent_density.insert(0, "1,5")
 ent_density.grid(row=0, column=1, padx=5, pady=2)
 
-tk.Label(row_manual, text="Sediment retention efficiency (%):").grid(row=1, column=0, sticky="w")
+tk.Label(row_manual, text="Eficiência da retenção de sedimentos em reservatórios (%):").grid(row=1, column=0, sticky="w")
 ent_efficiency = tk.Entry(row_manual, width=10, state=tk.DISABLED)
 ent_efficiency.insert(0, "50%")
 ent_efficiency.grid(row=1, column=1, padx=5, pady=2)
@@ -315,7 +319,139 @@ def on_calcular_click():
     result_discharge['vazão_de_saida'] = result_discharge['subasin_id'].map(peak_out).round(2)
     result_discharge['rompeu'] = result_discharge['subasin_id'].map(ruptura_dict)
 
+    
+    if sedimentos_checkbox.get():
+
+       
+        df_sedyield = dataframes.get('sedyield.dat')
+        logger.info(df_sedyield.info())
+        
+        if df_sedyield is not None:
+            sed_attrs = df_sedyield.set_index('subasin_id').to_dict(orient='index')
+            nx.set_node_attributes(G, sed_attrs)
+        else:
+            messagebox.showerror(
+                "Erro",
+                "Arquivo sedyield.dat não carregado."
+            )
+            txt_saida['state'] = tk.NORMAL
+            txt_saida.insert(tk.END, f"Erro: Arquivo sedyield.dat não carregado.\n")
+            txt_saida.see(tk.END)
+            txt_saida['state'] = tk.DISABLED
+            return
+
+        
+        
+        txt_saida['state'] = tk.NORMAL
+        txt_saida.insert(tk.END, f"Calculando sedimentos...\n")
+        txt_saida.see(tk.END)
+        txt_saida['state'] = tk.DISABLED
+
+        pm_fenda = 0.842584358697712
+        m = 0.0261
+        n = 0.769
+
+        default_density = 1.5  # g/cm³
+        default_efficiency = 0.50  # 50%
+
+        # Acessar os valores
+        # --- Lógica de Acesso aos Parâmetros ---
+        if radio_var.get() == 1:
+            # MODO ARQUIVO
+            df_sed_param = dataframes.get('sed_param.dat')
+            if df_sed_param is not None:
+                # Criar dicionários mapeando subasin_id para os valores
+                density_map = dict(zip(df_sed_param['subasin_id'], df_sed_param['sediment_density']))
+                efficiency_map = dict(zip(df_sed_param['subasin_id'], df_sed_param['sediment_retention_efficiency']))
+            else:
+                messagebox.showerror("Erro", "Arquivo sed_param.dat não carregado.")
+                return
+        else:
+            # MODO MANUAL
+            try:
+                # Limpa string de % ou vírgulas e converte
+                val_dens = ent_density.get().replace(',', '.')
+                val_eff = ent_efficiency.get().replace(',', '.').replace('%', '')
+                
+                default_density = float(val_dens) if val_dens else 1.5
+                # Se for eficiência em %, divide por 100
+                default_efficiency = float(val_eff) / 100 if val_eff else 0.50
+                
+                # Criamos dicionários vazios, pois usaremos o valor padrão no .get() dentro do loop
+                density_map = {}
+                efficiency_map = {}
+            except ValueError:
+                messagebox.showerror("Erro", "Valores manuais de densidade ou eficiência inválidos.")
+                return
+        
+        sedimentos_discharge = pd.DataFrame(columns=["subasin_id"])
+        sedimentos_discharge["subasin_id"] = result_discharge["subasin_id"]
+
+        sedimentos_discharge['volume_sedimento_erodido'] = (
+            result_discharge['rompeu'] * m * ( result_discharge['volume_total'] * pm_fenda * df_merged['dam_height'] ) ** n).round(2)
+
+        sedimentos_discharge['massa_sedimento_erodido'] = (
+            sedimentos_discharge['volume_sedimento_erodido'] * default_density
+        ).round(2)
+
+        sed_in = {} # Massa de sedimentos afluente - sediment routing (ton)
+        sed_out = {} # Massa de sedimentos efluente - sediment routing (ton)
+
+        logger.info('Iniciando cálculo de sedimentos')
+
+        for i in sequencia_processamento:
+
+            upstreams = list(G.predecessors(i)) #lista com todas as bacias acima da bacia atual
+
+            # Tenta pegar do mapa (arquivo). Se não existir ou for modo manual, usa o default
+            if radio_var.get() == 1:
+                # No modo arquivo, se o ID não existir no .dat, você pode definir um fallback
+                current_density = density_map.get(i, 1.5)
+                current_efficiency = efficiency_map.get(i, 0.5)
+            else:
+                current_density = default_density
+                current_efficiency = default_efficiency
+
+            sed_local = G.nodes[i]['sed_enter_volume'] 
+
+            if upstreams:
+                sed_in[i] = sed_local + sum(sed_out[up] for up in upstreams)
+            else:
+                sed_in[i] = sed_local
+
+            # 2. Saída de sedimentos
+            if ruptura_dict[i]:
+                # Cálculo da massa erodida local usando a densidade específica deste nó
+                vol_erodido = sedimentos_discharge.loc[sedimentos_discharge['subasin_id'] == i, 'volume_sedimento_erodido'].values[0]
+                massa_erodida = vol_erodido * current_density
+                
+                sed_out[i] = sed_in[i] + massa_erodida
+            else:
+                # Se não rompeu, aplica a eficiência de retenção
+                sed_out[i] = current_efficiency * sed_in[i]
+
+            print(
+                f"Açude {i} | "
+                f"Sed_in = {sed_in[i]:.2f} | "
+                f"Sed_out = {sed_out[i]:.2f} | "
+                f"Rompeu = {ruptura_dict[i]}"
+            )
+
+        logger.info('Finalizando cálculo de sedimentos')
+
+        sedimentos_discharge['sedimento_afluente'] = (sedimentos_discharge['subasin_id'].map(sed_in).round(2))
+        sedimentos_discharge['sedimento_efluente'] = (    sedimentos_discharge['subasin_id'].map(sed_out).round(2))
+
+        result_discharge = result_discharge.merge(
+            sedimentos_discharge,
+            on='subasin_id')
+        print("result_discharge com sedimentos:")
+        print(result_discharge.head())
+
     result_discharge.to_csv('result_discharge.dat', index=False)
+
+    print("calculo de sedimentos finalizado!")
+
 
     txt_saida['state'] = tk.NORMAL
     txt_saida.insert(tk.END, f"O arquivo result_discharge.dat foi gerado com sucesso! \n")

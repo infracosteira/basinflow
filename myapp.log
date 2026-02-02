@@ -177,3 +177,149 @@ INFO:__main__:Processing data
 2026-01-30 17:30:45,709 - INFO: Cálculo iniciado pelo usuário
 2026-01-30 17:30:45,718 - INFO: DataFrames mesclados para construção do grafo
 2026-01-30 18:18:08,820 - INFO: Finished
+2026-01-30 19:29:05,615 - INFO: Started
+2026-01-30 19:29:08,907 - INFO: Cálculo iniciado pelo usuário
+2026-01-30 19:29:17,259 - INFO: Finished
+2026-02-02 14:40:35,971 - INFO: Started
+2026-02-02 14:40:39,239 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 14:40:56,479 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 14:40:56,498 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 14:41:10,334 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 14:41:10,344 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 14:41:20,734 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 14:41:20,745 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 14:41:35,448 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 14:41:35,457 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 14:41:36,326 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 14:41:36,334 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 14:41:37,113 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 14:41:37,122 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 14:41:37,570 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 14:41:37,579 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 14:41:37,930 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 14:41:37,939 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 14:41:38,270 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 14:41:38,278 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 14:41:40,752 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 14:41:40,762 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 14:41:41,473 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 14:41:41,484 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 14:41:41,927 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 14:41:41,938 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 14:41:42,199 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 14:41:42,209 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 14:41:45,570 - INFO: Finished
+2026-02-02 14:44:59,902 - INFO: Started
+2026-02-02 14:49:01,011 - INFO: Finished
+2026-02-02 14:49:05,203 - INFO: Started
+2026-02-02 14:49:12,664 - INFO: Finished
+2026-02-02 14:52:30,611 - INFO: Started
+2026-02-02 14:52:46,392 - INFO: Finished
+2026-02-02 14:53:09,895 - INFO: Started
+2026-02-02 14:54:20,300 - INFO: Finished
+2026-02-02 14:54:23,380 - INFO: Started
+2026-02-02 14:54:30,737 - INFO: Finished
+2026-02-02 15:07:30,225 - INFO: Started
+2026-02-02 15:07:39,870 - INFO: Finished
+2026-02-02 15:09:08,761 - INFO: Started
+2026-02-02 15:09:47,169 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 15:09:47,176 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 15:12:05,398 - INFO: Finished
+2026-02-02 15:12:09,979 - INFO: Started
+2026-02-02 15:12:37,503 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 15:12:37,510 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 15:12:46,143 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 15:12:46,148 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 15:14:12,022 - INFO: Finished
+2026-02-02 15:14:49,475 - INFO: Started
+2026-02-02 15:15:35,245 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 15:15:35,252 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 15:15:46,260 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 15:15:46,265 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 15:17:25,595 - INFO: Finished
+2026-02-02 17:27:08,777 - INFO: Started
+2026-02-02 17:27:47,359 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 17:27:47,367 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 17:29:19,946 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 17:29:19,951 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 17:31:36,948 - INFO: Finished
+2026-02-02 17:36:51,965 - INFO: Started
+2026-02-02 17:38:09,161 - INFO: Finished
+2026-02-02 17:38:12,593 - INFO: Started
+2026-02-02 17:41:42,434 - INFO: Started
+2026-02-02 17:44:41,867 - INFO: Finished
+2026-02-02 18:01:20,412 - INFO: Started
+2026-02-02 18:02:18,824 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 18:02:18,832 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 18:02:18,853 - INFO: None
+2026-02-02 18:10:44,784 - INFO: Finished
+2026-02-02 18:10:48,257 - INFO: Started
+2026-02-02 18:11:23,915 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 18:11:23,922 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 18:11:23,943 - INFO: None
+2026-02-02 18:12:26,576 - INFO: Started
+2026-02-02 18:12:57,796 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 18:12:57,804 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 18:12:57,825 - INFO: None
+2026-02-02 18:12:57,829 - INFO: Iniciando cálculo de sedimentos
+2026-02-02 18:12:57,834 - INFO: Finalizando cálculo de sedimentos
+2026-02-02 18:13:44,586 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 18:13:44,591 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 18:13:44,609 - INFO: None
+2026-02-02 18:13:44,615 - INFO: Iniciando cálculo de sedimentos
+2026-02-02 18:13:44,620 - INFO: Finalizando cálculo de sedimentos
+2026-02-02 18:14:11,023 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 18:14:11,029 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 18:14:11,049 - INFO: None
+2026-02-02 18:14:11,055 - INFO: Iniciando cálculo de sedimentos
+2026-02-02 18:14:11,059 - INFO: Finalizando cálculo de sedimentos
+2026-02-02 18:14:22,958 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 18:14:22,964 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 18:14:22,983 - INFO: None
+2026-02-02 18:14:22,988 - INFO: Iniciando cálculo de sedimentos
+2026-02-02 18:14:22,993 - INFO: Finalizando cálculo de sedimentos
+2026-02-02 18:15:14,699 - INFO: Finished
+2026-02-02 18:15:36,316 - INFO: Started
+2026-02-02 18:16:01,509 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 18:16:01,517 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 18:16:01,538 - INFO: None
+2026-02-02 18:16:01,543 - INFO: Iniciando cálculo de sedimentos
+2026-02-02 18:16:01,547 - INFO: Finalizando cálculo de sedimentos
+2026-02-02 18:16:10,206 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 18:16:10,211 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 18:16:10,228 - INFO: None
+2026-02-02 18:16:10,234 - INFO: Iniciando cálculo de sedimentos
+2026-02-02 18:16:10,238 - INFO: Finalizando cálculo de sedimentos
+2026-02-02 18:19:06,270 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 18:19:06,277 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 18:19:06,296 - INFO: None
+2026-02-02 18:19:06,302 - INFO: Iniciando cálculo de sedimentos
+2026-02-02 18:19:06,306 - INFO: Finalizando cálculo de sedimentos
+2026-02-02 18:19:12,620 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 18:19:12,624 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 18:19:12,642 - INFO: None
+2026-02-02 18:19:12,646 - INFO: Iniciando cálculo de sedimentos
+2026-02-02 18:19:12,651 - INFO: Finalizando cálculo de sedimentos
+2026-02-02 18:19:16,339 - INFO: Finished
+2026-02-02 18:19:21,671 - INFO: Started
+2026-02-02 18:20:06,843 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 18:20:06,851 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 18:20:06,872 - INFO: None
+2026-02-02 18:20:06,877 - INFO: Iniciando cálculo de sedimentos
+2026-02-02 18:20:06,881 - INFO: Finalizando cálculo de sedimentos
+2026-02-02 18:24:44,474 - INFO: Finished
+2026-02-02 18:24:48,130 - INFO: Started
+2026-02-02 18:25:21,994 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 18:25:22,000 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 18:25:22,019 - INFO: None
+2026-02-02 18:25:22,024 - INFO: Iniciando cálculo de sedimentos
+2026-02-02 18:25:22,028 - INFO: Finalizando cálculo de sedimentos
+2026-02-02 18:36:36,190 - INFO: Finished
+2026-02-02 18:37:06,423 - INFO: Started
+2026-02-02 18:37:45,629 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 18:37:45,640 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 18:38:08,889 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 18:38:08,897 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 18:38:20,277 - INFO: Cálculo iniciado pelo usuário
+2026-02-02 18:38:20,284 - INFO: DataFrames mesclados para construção do grafo
+2026-02-02 18:39:30,385 - INFO: Finished
