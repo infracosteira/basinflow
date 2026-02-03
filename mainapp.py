@@ -69,6 +69,9 @@ def selecionar_arquivo(entry_widget, chave):
     entry_widget.delete(0, tk.END)
     entry_widget.insert(0, file_path)
     entry_widget.config(state=tk.DISABLED)
+    
+    origem = entry_widget.cget("textvariable")
+    qtd_colunas_esperadas = len(FILE_SCHEMAS[chave]["names"])
 
     try:
         config = FILE_SCHEMAS[chave]
@@ -76,12 +79,16 @@ def selecionar_arquivo(entry_widget, chave):
         df = pd.read_table(
             file_path,
             encoding='latin1',
-            skiprows=2,
-            names=config["names"],
+            skiprows=1,
             sep='\t',       
             quotechar='"',   
             engine='python'
         )
+
+        if df.shape[1] != qtd_colunas_esperadas:
+            raise ValueError(f"O arquivo {file_path} tem {df.shape[1]} colunas, mas eram esperadas {qtd_colunas_esperadas}.")
+
+        df.columns = config["names"]
 
         # Chama a limpeza que criamos antes para garantir que as vírgulas virem pontos
         df = clean_dataframe_columns(df, exclude_cols=['subasin_id'])
@@ -142,7 +149,7 @@ for label in labels:
 
     tk.Label(row, text=f"Carregar arquivo {label}:", width=25, anchor="w").pack(side="left")
 
-    ent = tk.Entry(row, state=tk.DISABLED)
+    ent = tk.Entry(row, textvariable=label, state=tk.DISABLED)
     ent.pack(side="left", expand=True, fill="x", padx=5)
 
     entradas_principais[label] = ent
