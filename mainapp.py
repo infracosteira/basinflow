@@ -472,4 +472,4 @@ txt_saida.pack(fill="both", expand=True)
 root.mainloop()
 
 
-logger.info('Finished')
+logger.info('Finished') 
