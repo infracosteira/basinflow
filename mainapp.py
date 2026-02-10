@@ -70,7 +70,6 @@ def selecionar_arquivo(entry_widget, chave):
     entry_widget.insert(0, file_path)
     entry_widget.config(state=tk.DISABLED)
     
-    origem = entry_widget.cget("textvariable")
     qtd_colunas_esperadas = len(FILE_SCHEMAS[chave]["names"])
 
     try:
@@ -93,11 +92,10 @@ def selecionar_arquivo(entry_widget, chave):
         # Chama a limpeza que criamos antes para garantir que as vírgulas virem pontos
         df = clean_dataframe_columns(df, exclude_cols=['subasin_id'])
 
-        # 🔥 salva com identidade correta
         dataframes[chave] = df
 
-        print(f"\nArquivo '{chave}' carregado com sucesso")
-        print(df.head(20))
+        """ print(f"\nArquivo '{chave}' carregado com sucesso")
+        print(df.head(20)) """
         
         txt_saida['state'] = tk.NORMAL
         txt_saida.insert(tk.END, f"Arquivo '{chave}' carregado com sucesso\n")
@@ -115,7 +113,6 @@ def selecionar_arquivo(entry_widget, chave):
         )
         txt_saida.insert(tk.END, f"Erro ao ler o arquivo {chave}:\n{e}\n")
         txt_saida.see(tk.END)
-
 
 def toggle_sedimentos():
     
@@ -141,7 +138,13 @@ frame_entrada.pack(fill="x", padx=20, pady=10)
 #o pack com fill="x" faz o frame ocupar toda a largura disponível, então esse retagunlo em especifico
 #vai ser o retangulo que engloba toda a seção de entrada de dados
 labels = ["routing.dat", "runoff.dat", "reservoir.dat"]
-entradas_principais = {}
+
+
+row_name = tk.Frame(frame_entrada)
+row_name.pack(fill="x", pady=2)
+tk.Label(row_name, text=f"Nome do arquivo:", width=25, anchor="w").pack(side="left")
+ent_name = tk.Entry(row_name, state=tk.NORMAL)
+ent_name.pack(side='left', expand=True,fill='x',padx=5)
 
 for label in labels:
     row = tk.Frame(frame_entrada)
@@ -151,8 +154,6 @@ for label in labels:
 
     ent = tk.Entry(row, textvariable=label, state=tk.DISABLED)
     ent.pack(side="left", expand=True, fill="x", padx=5)
-
-    entradas_principais[label] = ent
 
     tk.Button(
         row,
@@ -217,6 +218,11 @@ ent_efficiency.grid(row=1, column=1, padx=5, pady=2)
 # FUNÇÃO PRINCIPAL DE CÁLCULO
 
 def on_calcular_click():
+
+    if ent_name.get():
+        nome = ent_name.get()
+    else:
+        nome = "result_discharge"
 
     logger.info('Cálculo iniciado pelo usuário')
 
@@ -310,12 +316,13 @@ def on_calcular_click():
             volume_out[i] = volume_in[i] + storage_capacity
             peak_out[i] = 0.0344 * (volume_out[i] ** 0.6527)
 
-            print(
+            """ print(
                 f"Volume: {volume_out[i]:.2f} | "
                 f"Açude {i} ROMPEU | "
                 f"Peak in = {peak_in[i]:.2f} | "
                 f"Peak out = {peak_out[i]:.2f}"
-            )
+            ) """
+
         else:
             volume_out[i] = volume_in[i]
             peak_out[i] = 0.707121014402343 * peak_in[i]
@@ -382,7 +389,7 @@ def on_calcular_click():
                 
                 default_density = float(val_dens) if val_dens else 1.5
                 # Se for eficiência em %, divide por 100
-                default_efficiency = float(val_eff) / 100 if val_eff else 0.50
+                default_efficiency = float(val_eff) if val_eff else 0.50
                 
                 # Criamos dicionários vazios, pois usaremos o valor padrão no .get() dentro do loop
                 density_map = {}
@@ -413,8 +420,8 @@ def on_calcular_click():
             # Tenta pegar do mapa (arquivo). Se não existir ou for modo manual, usa o default
             if radio_var.get() == 1:
                 # No modo arquivo, se o ID não existir no .dat, você pode definir um fallback
-                current_density = density_map.get(i, 1.5)
-                current_efficiency = efficiency_map.get(i, 0.5)
+                current_density = density_map.get(i)
+                current_efficiency = efficiency_map.get(i)
             else:
                 current_density = default_density
                 current_efficiency = default_efficiency
@@ -437,12 +444,12 @@ def on_calcular_click():
                 # Se não rompeu, aplica a eficiência de retenção
                 sed_out[i] = current_efficiency * sed_in[i]
 
-            print(
+            """ print(
                 f"Açude {i} | "
                 f"Sed_in = {sed_in[i]:.2f} | "
                 f"Sed_out = {sed_out[i]:.2f} | "
                 f"Rompeu = {ruptura_dict[i]}"
-            )
+            ) """
 
         logger.info('Finalizando cálculo de sedimentos')
 
@@ -452,16 +459,15 @@ def on_calcular_click():
         result_discharge = result_discharge.merge(
             sedimentos_discharge,
             on='subasin_id')
-        print("result_discharge com sedimentos:")
-        print(result_discharge.head())
+        """ print("result_discharge com sedimentos:")
+        print(result_discharge.head(10)) """
 
-    result_discharge.to_csv('result_discharge.dat', index=False)
+    result_discharge.to_csv(f"{nome}.dat", index=False)
 
-    print("calculo de sedimentos finalizado!")
-
+    """ print("calculo de sedimentos finalizado!") """
 
     txt_saida['state'] = tk.NORMAL
-    txt_saida.insert(tk.END, f"O arquivo result_discharge.dat foi gerado com sucesso! \n")
+    txt_saida.insert(tk.END, f"O arquivo {nome}.dat foi gerado com sucesso! \n")
     txt_saida.see(tk.END)
     txt_saida['state'] = tk.DISABLED
     
@@ -480,3 +486,6 @@ root.mainloop()
 
 
 logger.info('Finished') 
+
+
+#Diminuir o acoplamento usar mvc
