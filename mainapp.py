@@ -181,256 +181,263 @@ tk.Label(row_manual, text="%").grid(row=1, column=2, sticky="w")
 # FUNÇÃO PRINCIPAL DE CÁLCULO
 
 def on_calcular_click():
+    try:
 
-    if ent_name.get():
-        nome = ent_name.get()
-    else:
-        nome = "result_discharge"
-
-    logger.info('Cálculo iniciado pelo usuário')
-
-    txt_saida['state'] = tk.NORMAL
-    txt_saida.insert(tk.END, f"Cálculo iniciado pelo usuário...\n")
-    txt_saida.see(tk.END)
-    txt_saida['state'] = tk.DISABLED
-
-    df_reservoir = dataframes.get('reservoir.dat')
-    df_routing = dataframes.get('routing.dat')
-    df_runoff = dataframes.get('runoff.dat')
-
-    df_routing['downstream'] = df_routing['downstream'].replace(-999, np.nan)
-
-    df_merged = (df_reservoir.merge(df_runoff, on='subasin_id', how='left'))
-    node_attrs = (df_merged.set_index('subasin_id').to_dict(orient='index'))
-
-    logger.info('DataFrames mesclados para construção do grafo')
-
-    txt_saida['state'] = tk.NORMAL
-    txt_saida.insert(tk.END, f"Construindo grafo das rotas...\n")
-    txt_saida.see(tk.END)
-    txt_saida['state'] = tk.DISABLED
-
-    df_edges = df_routing.dropna(subset=['downstream'])
-    df_edges = df_routing.dropna(subset=['downstream']).copy()
-    df_edges['upstream'] = df_edges['upstream'].astype(int)
-    df_edges['downstream'] = df_edges['downstream'].astype(int)
-
-# Cria um grafo direcionado (DiGraph) a partir do DataFrame.
-    G = nx.from_pandas_edgelist(
-            df_edges,
-            source='upstream',
-            target='downstream',
-            create_using=nx.DiGraph()
-        )
-    
-    txt_saida['state'] = tk.NORMAL
-    txt_saida.insert(tk.END, f"Preparando sequencia de processamento...\n")
-    txt_saida.see(tk.END)
-    txt_saida['state'] = tk.DISABLED
-
-    nx.set_node_attributes(G, node_attrs) #usando nx para determinar os atributos do grafo G com os dados do dicionario node_attrs
-
-    sequencia_processamento = list(nx.topological_sort(G))
-
-    #cria um dataframe tendo como base os ids dos açudes
-    result_discharge = pd.DataFrame(columns=["subasin_id"])
-    result_discharge["subasin_id"] = df_runoff["subasin_id"]    
-
-    peak_in = {} # Vazão de pico na entrada - water routing (m³/s)
-    peak_out = {} # Vazão de pico na saída - water routing (m³/s)
-    volume_in = {} # Volume na entrada do açude - water routing (m³)
-    volume_out = {} # Volume na saída do açude - water routing (m³)
-    ruptura_dict = {} # Contador de casos de ruptura (m³/s)
-    
-
-    txt_saida['state'] = tk.NORMAL
-    txt_saida.insert(tk.END, f"Calculando casos de ruptura...\n")
-    txt_saida.see(tk.END)
-    txt_saida['state'] = tk.DISABLED
-
-    for i in sequencia_processamento:
-
-        upstreams = list(G.predecessors(i))  #lista com todos os predecessores do açude atual
-
-        # 1. Entradas (volume e pico)
-
-        if upstreams:     #se ele tiver predecessores
-
-            volume_in[i] = (G.nodes[i]['runoff_volume']+ sum(volume_out[up] for up in upstreams)) # o volume de entrada será o volume dele, mais a soma do volume de todos os predecessores na lista pega anteriormente
-
-            peak_in[i] = (G.nodes[i]['runoff_peak_discharge'] + sum(peak_out[up] for up in upstreams))   # a mesma ideia ocorre aqui para o valor de pico de SAIDA
+        if ent_name.get():
+            nome = ent_name.get()
         else:
-            volume_in[i] = G.nodes[i]['runoff_volume']
-            peak_in[i] = G.nodes[i]['runoff_peak_discharge']       #caso ele seja uma folha (sem predecessores), os valores serão os próprios dele mesmo.
+            nome = "result_discharge"
 
-        # 2. Dados do açude
+        logger.info('Cálculo iniciado pelo usuário')
 
-        spillway = G.nodes[i]['spillway_discharge']
-        storage_capacity = G.nodes[i]['water_storage_capacity']    #limite do vertedouro do açude i, bem como a sua capacidade
-
-        # 3. Verificação de ruptura
-        # o valor 0.707121014402343, representa o percentual médio do volume efluente que passa pela fenda:
-
-        rompeu = (0.707121014402343 * peak_in[i] > spillway)
-        ruptura_dict[i] = rompeu
-
-        # 4. Saídas (volume e pico)
-
-        if rompeu:
-            volume_out[i] = volume_in[i] + storage_capacity
-            peak_out[i] = 0.0344 * (volume_out[i] ** 0.6527)
-
-            """ print(
-                f"Volume: {volume_out[i]:.2f} | "
-                f"Açude {i} ROMPEU | "
-                f"Peak in = {peak_in[i]:.2f} | "
-                f"Peak out = {peak_out[i]:.2f}"
-            ) """
-
-        else:
-            volume_out[i] = volume_in[i]
-            peak_out[i] = 0.707121014402343 * peak_in[i]
-
-    result_discharge['volume_entrada'] = result_discharge['subasin_id'].map(volume_in).astype(int)
-    result_discharge['volume_total'] = result_discharge['subasin_id'].map(volume_out).astype(int)
-    result_discharge['vazão_de_entrada'] = result_discharge['subasin_id'].map(peak_in).round(2)
-    result_discharge['vazão_de_saida'] = result_discharge['subasin_id'].map(peak_out).round(2)
-    result_discharge['rompeu'] = result_discharge['subasin_id'].map(ruptura_dict)
-
-    
-    if sedimentos_checkbox.get():
-
-       
-        df_sedyield = dataframes.get('sedyield.dat')
-        logger.info(df_sedyield.info())
-        
-        if df_sedyield is not None:
-            sed_attrs = df_sedyield.set_index('subasin_id').to_dict(orient='index')
-            nx.set_node_attributes(G, sed_attrs)
-        else:
-            messagebox.showerror(
-                "Erro",
-                "Arquivo sedyield.dat não carregado."
-            )
-            txt_saida['state'] = tk.NORMAL
-            txt_saida.insert(tk.END, f"Erro: Arquivo sedyield.dat não carregado.\n")
-            txt_saida.see(tk.END)
-            txt_saida['state'] = tk.DISABLED
-            return
-
-        
-        
         txt_saida['state'] = tk.NORMAL
-        txt_saida.insert(tk.END, f"Calculando sedimentos...\n")
+        txt_saida.insert(tk.END, f"Cálculo iniciado pelo usuário...\n")
         txt_saida.see(tk.END)
         txt_saida['state'] = tk.DISABLED
 
-        pm_fenda = 0.842584358697712
-        m = 0.0261
-        n = 0.769
+        df_reservoir = dataframes.get('reservoir.dat')
+        df_routing = dataframes.get('routing.dat')
+        df_runoff = dataframes.get('runoff.dat')
 
-        # Acessar os valores
-        # --- Lógica de Acesso aos Parâmetros ---
-        if radio_var.get() == 1:
-            # MODO ARQUIVO
-            df_sed_param = dataframes.get('sed_param.dat')
-            if df_sed_param is not None:
-                # Criar dicionários mapeando subasin_id para os valores
-                density_map = dict(zip(df_sed_param['subasin_id'], df_sed_param['sediment_density']))
-                efficiency_map = dict(zip(df_sed_param['subasin_id'], df_sed_param['sediment_retention_efficiency']))
-            else:
-                messagebox.showerror("Erro", "Arquivo sed_param.dat não carregado.")
-                return
-        else:
-            # MODO MANUAL
-            try:
-                # Limpa string de % ou vírgulas e converte
-                val_dens = ent_density.get().replace(',', '.')
-                val_eff = ent_efficiency.get().replace(',', '.').replace('%', '')
-                
-                default_density = float(val_dens) if val_dens else 1.5
-                # Se for eficiência em %, divide por 100
-                default_efficiency = float(val_eff) / 100 if val_eff else 0.50
-                
-                # Criamos dicionários vazios, pois usaremos o valor padrão no .get() dentro do loop
-                density_map = {}
-                efficiency_map = {}
-            except ValueError:
-                messagebox.showerror("Erro", "Valores manuais de densidade ou eficiência inválidos.")
-                return
+        df_routing['downstream'] = df_routing['downstream'].replace(-999, np.nan)
+
+        df_merged = (df_reservoir.merge(df_runoff, on='subasin_id', how='left'))
+        node_attrs = (df_merged.set_index('subasin_id').to_dict(orient='index'))
+
+        logger.info('DataFrames mesclados para construção do grafo')
+
+        txt_saida['state'] = tk.NORMAL
+        txt_saida.insert(tk.END, f"Construindo grafo das rotas...\n")
+        txt_saida.see(tk.END)
+        txt_saida['state'] = tk.DISABLED
+
+        df_edges = df_routing.dropna(subset=['downstream'])
+        df_edges = df_routing.dropna(subset=['downstream']).copy()
+        df_edges['upstream'] = df_edges['upstream'].astype(int)
+        df_edges['downstream'] = df_edges['downstream'].astype(int)
+
+    # Cria um grafo direcionado (DiGraph) a partir do DataFrame.
+        G = nx.from_pandas_edgelist(
+                df_edges,
+                source='upstream',
+                target='downstream',
+                create_using=nx.DiGraph()
+            )
         
-        sedimentos_discharge = pd.DataFrame(columns=["subasin_id"])
-        sedimentos_discharge["subasin_id"] = result_discharge["subasin_id"]
+        txt_saida['state'] = tk.NORMAL
+        txt_saida.insert(tk.END, f"Preparando sequencia de processamento...\n")
+        txt_saida.see(tk.END)
+        txt_saida['state'] = tk.DISABLED
 
-        sedimentos_discharge['volume_sedimento_erodido'] = (
-            result_discharge['rompeu'] * m * ( result_discharge['volume_total'] * pm_fenda * df_merged['dam_height'] ) ** n).round(2)
+        nx.set_node_attributes(G, node_attrs) #usando nx para determinar os atributos do grafo G com os dados do dicionario node_attrs
 
-        sedimentos_discharge['massa_sedimento_erodido'] = (
-            sedimentos_discharge['volume_sedimento_erodido'] * default_density
-        ).round(2)
+        sequencia_processamento = list(nx.topological_sort(G))
 
-        sed_in = {} # Massa de sedimentos afluente - sediment routing (ton)
-        sed_out = {} # Massa de sedimentos efluente - sediment routing (ton)
+        #cria um dataframe tendo como base os ids dos açudes
+        result_discharge = pd.DataFrame(columns=["subasin_id"])
+        result_discharge["subasin_id"] = df_runoff["subasin_id"]    
 
-        logger.info('Iniciando cálculo de sedimentos')
+        peak_in = {} # Vazão de pico na entrada - water routing (m³/s)
+        peak_out = {} # Vazão de pico na saída - water routing (m³/s)
+        volume_in = {} # Volume na entrada do açude - water routing (m³)
+        volume_out = {} # Volume na saída do açude - water routing (m³)
+        ruptura_dict = {} # Contador de casos de ruptura (m³/s)
+        
+
+        txt_saida['state'] = tk.NORMAL
+        txt_saida.insert(tk.END, f"Calculando casos de ruptura...\n")
+        txt_saida.see(tk.END)
+        txt_saida['state'] = tk.DISABLED
 
         for i in sequencia_processamento:
 
-            upstreams = list(G.predecessors(i)) #lista com todas as bacias acima da bacia atual
+            upstreams = list(G.predecessors(i))  #lista com todos os predecessores do açude atual
 
-            # Tenta pegar do mapa (arquivo). Se não existir ou for modo manual, usa o default
+            # 1. Entradas (volume e pico)
+
+            if upstreams:     #se ele tiver predecessores
+
+                volume_in[i] = (G.nodes[i]['runoff_volume']+ sum(volume_out[up] for up in upstreams)) # o volume de entrada será o volume dele, mais a soma do volume de todos os predecessores na lista pega anteriormente
+
+                peak_in[i] = (G.nodes[i]['runoff_peak_discharge'] + sum(peak_out[up] for up in upstreams))   # a mesma ideia ocorre aqui para o valor de pico de SAIDA
+            else:
+                volume_in[i] = G.nodes[i]['runoff_volume']
+                peak_in[i] = G.nodes[i]['runoff_peak_discharge']       #caso ele seja uma folha (sem predecessores), os valores serão os próprios dele mesmo.
+
+            # 2. Dados do açude
+
+            spillway = G.nodes[i]['spillway_discharge']
+            storage_capacity = G.nodes[i]['water_storage_capacity']    #limite do vertedouro do açude i, bem como a sua capacidade
+
+            # 3. Verificação de ruptura
+            # o valor 0.707121014402343, representa o percentual médio do volume efluente que passa pela fenda:
+
+            rompeu = (0.707121014402343 * peak_in[i] > spillway)
+            ruptura_dict[i] = rompeu
+
+            # 4. Saídas (volume e pico)
+
+            if rompeu:
+                volume_out[i] = volume_in[i] + storage_capacity
+                peak_out[i] = 0.0344 * (volume_out[i] ** 0.6527)
+
+                """ print(
+                    f"Volume: {volume_out[i]:.2f} | "
+                    f"Açude {i} ROMPEU | "
+                    f"Peak in = {peak_in[i]:.2f} | "
+                    f"Peak out = {peak_out[i]:.2f}"
+                ) """
+
+            else:
+                volume_out[i] = volume_in[i]
+                peak_out[i] = 0.707121014402343 * peak_in[i]
+
+        result_discharge['volume_entrada'] = result_discharge['subasin_id'].map(volume_in).astype(int)
+        result_discharge['volume_total'] = result_discharge['subasin_id'].map(volume_out).astype(int)
+        result_discharge['vazão_de_entrada'] = result_discharge['subasin_id'].map(peak_in).round(2)
+        result_discharge['vazão_de_saida'] = result_discharge['subasin_id'].map(peak_out).round(2)
+        result_discharge['rompeu'] = result_discharge['subasin_id'].map(ruptura_dict)
+
+        
+        if sedimentos_checkbox.get():
+
+        
+            df_sedyield = dataframes.get('sedyield.dat')
+            
+            if df_sedyield is not None:
+                sed_attrs = df_sedyield.set_index('subasin_id').to_dict(orient='index')
+                nx.set_node_attributes(G, sed_attrs)
+            else:
+                messagebox.showerror(
+                    "Erro",
+                    "Arquivo sedyield.dat não carregado."
+                )
+                txt_saida['state'] = tk.NORMAL
+                txt_saida.insert(tk.END, f"Erro: Arquivo sedyield.dat não carregado.\n")
+                txt_saida.see(tk.END)
+                txt_saida['state'] = tk.DISABLED
+                return
+
+            
+            
+            txt_saida['state'] = tk.NORMAL
+            txt_saida.insert(tk.END, f"Calculando sedimentos...\n")
+            txt_saida.see(tk.END)
+            txt_saida['state'] = tk.DISABLED
+
+            pm_fenda = 0.842584358697712
+            m = 0.0261
+            n = 0.769
+
+            # Acessar os valores
+            # --- Lógica de Acesso aos Parâmetros ---
             if radio_var.get() == 1:
-                # No modo arquivo, se o ID não existir no .dat, você pode definir um fallback
-                current_density = density_map.get(i)
-                current_efficiency = efficiency_map.get(i)
+                # MODO ARQUIVO
+                df_sed_param = dataframes.get('sed_param.dat')
+                if df_sed_param is not None:
+                    # Criar dicionários mapeando subasin_id para os valores
+                    density_map = dict(zip(df_sed_param['subasin_id'], df_sed_param['sediment_density']))
+                    efficiency_map = dict(zip(df_sed_param['subasin_id'], df_sed_param['sediment_retention_efficiency']))
+                else:
+                    messagebox.showerror("Erro", "Arquivo sed_param.dat não carregado.")
+                    return
             else:
-                current_density = default_density
-                current_efficiency = default_efficiency
+                # MODO MANUAL
+                try:
+                    # Limpa string de % ou vírgulas e converte
+                    val_dens = ent_density.get().replace(',', '.')
+                    val_eff = ent_efficiency.get().replace(',', '.').replace('%', '')
+                    
+                    default_density = float(val_dens) if val_dens else 1.5
+                    # Se for eficiência em %, divide por 100
+                    default_efficiency = float(val_eff) / 100 if val_eff else 0.50
+                    
+                    # Criamos dicionários vazios, pois usaremos o valor padrão no .get() dentro do loop
+                    density_map = {}
+                    efficiency_map = {}
+                except ValueError:
+                    messagebox.showerror("Erro", "Valores manuais de densidade ou eficiência inválidos.")
+                    return
+            
+            sedimentos_discharge = pd.DataFrame(columns=["subasin_id"])
+            sedimentos_discharge["subasin_id"] = result_discharge["subasin_id"]
 
-            sed_local = G.nodes[i]['sed_enter_volume'] 
+            sedimentos_discharge['volume_sedimento_erodido'] = (
+                result_discharge['rompeu'] * m * ( result_discharge['volume_total'] * pm_fenda * df_merged['dam_height'] ) ** n).round(2)
 
-            if upstreams:
-                sed_in[i] = sed_local + sum(sed_out[up] for up in upstreams)
-            else:
-                sed_in[i] = sed_local
+            sedimentos_discharge['massa_sedimento_erodido'] = (
+                sedimentos_discharge['volume_sedimento_erodido'] * default_density
+            ).round(2)
 
-            # 2. Saída de sedimentos
-            if ruptura_dict[i]:
-                # Cálculo da massa erodida local usando a densidade específica deste nó
-                vol_erodido = sedimentos_discharge.loc[sedimentos_discharge['subasin_id'] == i, 'volume_sedimento_erodido'].values[0]
-                massa_erodida = vol_erodido * current_density
-                
-                sed_out[i] = sed_in[i] + massa_erodida
-            else:
-                # Se não rompeu, aplica a eficiência de retenção
-                sed_out[i] = current_efficiency * sed_in[i]
+            sed_in = {} # Massa de sedimentos afluente - sediment routing (ton)
+            sed_out = {} # Massa de sedimentos efluente - sediment routing (ton)
 
-            """ print(
-                f"Açude {i} | "
-                f"Sed_in = {sed_in[i]:.2f} | "
-                f"Sed_out = {sed_out[i]:.2f} | "
-                f"Rompeu = {ruptura_dict[i]}"
-            ) """
+            logger.info('Iniciando cálculo de sedimentos')
 
-        logger.info('Finalizando cálculo de sedimentos')
+            for i in sequencia_processamento:
 
-        sedimentos_discharge['sedimento_afluente'] = (sedimentos_discharge['subasin_id'].map(sed_in).round(2))
-        sedimentos_discharge['sedimento_efluente'] = (    sedimentos_discharge['subasin_id'].map(sed_out).round(2))
+                upstreams = list(G.predecessors(i)) #lista com todas as bacias acima da bacia atual
 
-        result_discharge = result_discharge.merge(
-            sedimentos_discharge,
-            on='subasin_id')
-        """ print("result_discharge com sedimentos:")
-        print(result_discharge.head(10)) """
+                # Tenta pegar do mapa (arquivo). Se não existir ou for modo manual, usa o default
+                if radio_var.get() == 1:
+                    # No modo arquivo, se o ID não existir no .dat, você pode definir um fallback
+                    current_density = density_map.get(i)
+                    current_efficiency = efficiency_map.get(i)
+                else:
+                    current_density = default_density
+                    current_efficiency = default_efficiency
 
-    result_discharge.to_csv(f"{nome}.dat", index=False)
+                sed_local = G.nodes[i]['sed_enter_volume'] 
 
-    """ print("calculo de sedimentos finalizado!") """
+                if upstreams:
+                    sed_in[i] = sed_local + sum(sed_out[up] for up in upstreams)
+                else:
+                    sed_in[i] = sed_local
 
-    txt_saida['state'] = tk.NORMAL
-    txt_saida.insert(tk.END, f"O arquivo {nome}.dat foi gerado com sucesso! \n")
-    txt_saida.see(tk.END)
-    txt_saida['state'] = tk.DISABLED
+                # 2. Saída de sedimentos
+                if ruptura_dict[i]:
+                    # Cálculo da massa erodida local usando a densidade específica deste nó
+                    vol_erodido = sedimentos_discharge.loc[sedimentos_discharge['subasin_id'] == i, 'volume_sedimento_erodido'].values[0]
+                    massa_erodida = vol_erodido * current_density
+                    
+                    sed_out[i] = sed_in[i] + massa_erodida
+                else:
+                    # Se não rompeu, aplica a eficiência de retenção
+                    sed_out[i] = current_efficiency * sed_in[i]
+
+                """ print(
+                    f"Açude {i} | "
+                    f"Sed_in = {sed_in[i]:.2f} | "
+                    f"Sed_out = {sed_out[i]:.2f} | "
+                    f"Rompeu = {ruptura_dict[i]}"
+                ) """
+
+            logger.info('Finalizando cálculo de sedimentos')
+
+            sedimentos_discharge['sedimento_afluente'] = (sedimentos_discharge['subasin_id'].map(sed_in).round(2))
+            sedimentos_discharge['sedimento_efluente'] = (    sedimentos_discharge['subasin_id'].map(sed_out).round(2))
+
+            result_discharge = result_discharge.merge(
+                sedimentos_discharge,
+                on='subasin_id')
+            """ print("result_discharge com sedimentos:")
+            print(result_discharge.head(10)) """
+
+        result_discharge.to_csv(f"{nome}.dat", index=False)
+
+        """ print("calculo de sedimentos finalizado!") """
+
+        txt_saida['state'] = tk.NORMAL
+        txt_saida.insert(tk.END, f"O arquivo {nome}.dat foi gerado com sucesso! \n")
+        txt_saida.see(tk.END)
+        txt_saida['state'] = tk.DISABLED
+
+    except Exception as e:
+        import traceback
+        erro = traceback.format_exc()
+        messagebox.showerror("Erro inesperado", erro)
+        logger.exception("Erro inesperado")
+
     
 
 btn_calcular = tk.Button(root, command=on_calcular_click, text="Calcular", bg="#d9d9d9", font=('Arial', 12, 'bold'), height=2)
