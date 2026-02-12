@@ -2,3 +2,8 @@
 *.log
 *.dat
 result_discharge.dat
+
+data/
+build/
+dist/
+__pycache__/

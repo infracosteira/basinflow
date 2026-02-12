@@ -5,58 +5,17 @@ from tkinter import filedialog, messagebox
 import pandas as pd
 import networkx as nx
 import numpy as np
-
-FILE_SCHEMAS = {
-    "reservoir.dat": {
-        "names": ['subasin_id', 'water_storage_capacity', 'dam_height', 'spillway_discharge'],
-        "decimal": ","
-    },
-    "routing.dat": {
-        "names": ['subasin_id', 'upstream', 'downstream'],
-        "decimal": "."
-    },
-    "runoff.dat": {
-        "names": ['subasin_id', 'runoff_volume', 'runoff_peak_discharge'],
-        "decimal": "."
-    },
-    "sedyield.dat": {
-        "names": ['subasin_id', 'sed_enter_volume'],
-        "decimal": "."
-    },
-    "sed_param.dat": {
-        "names": ['subasin_id','sediment_density', 'sediment_retention_efficiency'],
-        "decimal": "."
-    }
-}
-
-dataframes = {}
+from data_utils import clean_dataframe_columns, FILE_SCHEMAS, load_dat_file
 
 logger = logging.getLogger(__name__)
 FORMAT = '%(asctime)s - %(levelname)s: %(message)s'
 logging.basicConfig(filename='myapp.log', level=logging.INFO,format=FORMAT)
 logger.info('Started')
 
-def clean_dataframe_columns(df, exclude_cols=None):
-    if exclude_cols is None:
-        exclude_cols = []
-    df_cleaned = df.copy()
-
-    for col in df_cleaned.columns:
-        if col not in exclude_cols:
-            # Converte para string, limpa espaços e troca vírgula por ponto
-            df_cleaned[col] = (
-                df_cleaned[col]
-                .astype(str)
-                .str.replace('"', '', regex=False)
-                .str.strip()
-                .str.replace(',', '.', regex=False)
-            )
-            # Converte para float final
-            df_cleaned[col] = pd.to_numeric(df_cleaned[col], errors='coerce')
-    
-    return df_cleaned
+dataframes = {}
 
 def selecionar_arquivo(entry_widget, chave):
+
     file_path = filedialog.askopenfilename(
         title=f"Selecionar arquivo {chave}",
         filetypes=[("Arquivos DAT", "*.dat"), ("Todos os arquivos", "*.*")]
@@ -69,50 +28,34 @@ def selecionar_arquivo(entry_widget, chave):
     entry_widget.delete(0, tk.END)
     entry_widget.insert(0, file_path)
     entry_widget.config(state=tk.DISABLED)
-    
-    qtd_colunas_esperadas = len(FILE_SCHEMAS[chave]["names"])
 
     try:
         config = FILE_SCHEMAS[chave]
 
-        df = pd.read_table(
+        df = load_dat_file(
             file_path,
-            encoding='latin1',
-            skiprows=1,
-            sep='\t',       
-            quotechar='"',   
-            engine='python'
+            config,
+            clean_dataframe_columns
         )
-
-        if df.shape[1] != qtd_colunas_esperadas:
-            raise ValueError(f"O arquivo {file_path} tem {df.shape[1]} colunas, mas eram esperadas {qtd_colunas_esperadas}.")
-
-        df.columns = config["names"]
-
-        # Chama a limpeza que criamos antes para garantir que as vírgulas virem pontos
-        df = clean_dataframe_columns(df, exclude_cols=['subasin_id'])
 
         dataframes[chave] = df
 
-        """ print(f"\nArquivo '{chave}' carregado com sucesso")
-        print(df.head(20)) """
-        
         txt_saida['state'] = tk.NORMAL
         txt_saida.insert(tk.END, f"Arquivo '{chave}' carregado com sucesso\n")
         txt_saida.see(tk.END)
         txt_saida['state'] = tk.DISABLED
-
-        #txt_saida.insert(tk.END, df.head().to_string() + "\n")
-
-        txt_saida.see(tk.END)
 
     except Exception as e:
         messagebox.showerror(
             "Erro",
             f"Erro ao ler o arquivo {chave}:\n{e}"
         )
+
+        txt_saida['state'] = tk.NORMAL
         txt_saida.insert(tk.END, f"Erro ao ler o arquivo {chave}:\n{e}\n")
         txt_saida.see(tk.END)
+        txt_saida['state'] = tk.DISABLED
+
 
 def toggle_sedimentos():
     
@@ -139,11 +82,11 @@ frame_entrada.pack(fill="x", padx=20, pady=10)
 #vai ser o retangulo que engloba toda a seção de entrada de dados
 labels = ["routing.dat", "runoff.dat", "reservoir.dat"]
 
-
 row_name = tk.Frame(frame_entrada)
 row_name.pack(fill="x", pady=2)
-tk.Label(row_name, text=f"Nome do arquivo:", width=25, anchor="w").pack(side="left")
+tk.Label(row_name, text=f"Nome do arquivo de saída:", width=25, anchor="w").pack(side="left")
 ent_name = tk.Entry(row_name, state=tk.NORMAL)
+ent_name.insert(0, "result_discharge")
 ent_name.pack(side='left', expand=True,fill='x',padx=5)
 
 for label in labels:
@@ -205,15 +148,35 @@ rb_manual.pack(anchor="w")
 # Campos de densidade e eficiência
 row_manual = tk.Frame(subframe_params)
 row_manual.pack(fill="x", padx=20)
-tk.Label(row_manual, text="Densidade aparente seca da barragem de terra (g/cm³):").grid(row=0, column=0, sticky="w")
-ent_density = tk.Entry(row_manual, width=10, state=tk.DISABLED)
-ent_density.insert(0, "1,5")
-ent_density.grid(row=0, column=1, padx=5, pady=2)
 
-tk.Label(row_manual, text="Eficiência da retenção de sedimentos em reservatórios (%):").grid(row=1, column=0, sticky="w")
-ent_efficiency = tk.Entry(row_manual, width=10, state=tk.DISABLED)
-ent_efficiency.insert(0, "50%")
-ent_efficiency.grid(row=1, column=1, padx=5, pady=2)
+
+
+default_density = 1.5  # g/cm³
+default_efficiency = 0.50  # 50%
+
+tk.Label(
+    row_manual,
+    text="Densidade aparente seca da barragem de terra (g/cm³):"
+).grid(row=0, column=0, sticky="w")
+
+ent_density = tk.Entry(row_manual, width=10, state=tk.NORMAL)
+ent_density.grid(row=0, column=1, padx=5, pady=2)
+ent_density.insert(0, str(default_density))
+ent_density.config(state=tk.DISABLED)
+
+
+# EFICIÊNCIA
+tk.Label(
+    row_manual,
+    text="Eficiência da retenção de sedimentos em reservatórios:"
+).grid(row=1, column=0, sticky="w")
+
+ent_efficiency = tk.Entry(row_manual, width=6, state=tk.NORMAL)
+ent_efficiency.grid(row=1, column=1, padx=(5, 0), pady=2)
+ent_efficiency.insert(0, str(default_efficiency * 100))
+ent_efficiency.config(state=tk.DISABLED)
+
+tk.Label(row_manual, text="%").grid(row=1, column=2, sticky="w")
 
 # FUNÇÃO PRINCIPAL DE CÁLCULO
 
@@ -278,11 +241,12 @@ def on_calcular_click():
     volume_in = {} # Volume na entrada do açude - water routing (m³)
     volume_out = {} # Volume na saída do açude - water routing (m³)
     ruptura_dict = {} # Contador de casos de ruptura (m³/s)
+    
 
     txt_saida['state'] = tk.NORMAL
     txt_saida.insert(tk.END, f"Calculando casos de ruptura...\n")
     txt_saida.see(tk.END)
-    txt_saida['state'] = tk.DISABLED 
+    txt_saida['state'] = tk.DISABLED
 
     for i in sequencia_processamento:
 
@@ -365,9 +329,6 @@ def on_calcular_click():
         m = 0.0261
         n = 0.769
 
-        default_density = 1.5  # g/cm³
-        default_efficiency = 0.50  # 50%
-
         # Acessar os valores
         # --- Lógica de Acesso aos Parâmetros ---
         if radio_var.get() == 1:
@@ -389,7 +350,7 @@ def on_calcular_click():
                 
                 default_density = float(val_dens) if val_dens else 1.5
                 # Se for eficiência em %, divide por 100
-                default_efficiency = float(val_eff) if val_eff else 0.50
+                default_efficiency = float(val_eff) / 100 if val_eff else 0.50
                 
                 # Criamos dicionários vazios, pois usaremos o valor padrão no .get() dentro do loop
                 density_map = {}
@@ -475,7 +436,7 @@ def on_calcular_click():
 btn_calcular = tk.Button(root, command=on_calcular_click, text="Calcular", bg="#d9d9d9", font=('Arial', 12, 'bold'), height=2)
 btn_calcular.pack(pady=15, padx=20, fill="x")
 
-# 4. ÁREA DE SAÍDA (LOG)
+# 4. ÁREA DE SAÍDA (LOG)    
 frame_saida = tk.LabelFrame(root, text="Saída", padx=10, pady=10)
 frame_saida.pack(fill="both", expand=True, padx=20, pady=10)
 txt_saida = tk.Text(frame_saida, height=6, bg="#ffffff", state=tk.DISABLED)
@@ -483,7 +444,6 @@ txt_saida.pack(fill="both", expand=True)
 
 
 root.mainloop()
-
 
 logger.info('Finished') 
 
