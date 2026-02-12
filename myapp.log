@@ -511,3 +511,15 @@ INFO:__main__:Processing data
 2026-02-12 09:01:03,655 - INFO: Finished
 2026-02-12 09:02:21,106 - INFO: Started
 2026-02-12 09:02:42,054 - INFO: Finished
+2026-02-12 09:27:55,382 - INFO: Started
+2026-02-12 09:28:30,153 - INFO: Cálculo iniciado pelo usuário
+2026-02-12 09:28:30,167 - INFO: DataFrames mesclados para construção do grafo
+2026-02-12 09:28:30,193 - INFO: None
+2026-02-12 09:28:30,198 - INFO: Iniciando cálculo de sedimentos
+2026-02-12 09:28:30,198 - INFO: Finalizando cálculo de sedimentos
+2026-02-12 09:29:25,921 - INFO: Cálculo iniciado pelo usuário
+2026-02-12 09:29:25,926 - INFO: DataFrames mesclados para construção do grafo
+2026-02-12 09:29:25,944 - INFO: None
+2026-02-12 09:29:25,949 - INFO: Iniciando cálculo de sedimentos
+2026-02-12 09:29:25,949 - INFO: Finalizando cálculo de sedimentos
+2026-02-12 09:29:31,597 - INFO: Finished
